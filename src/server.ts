@@ -1,9 +1,9 @@
-import express from "express";
+import { fastify } from "fastify";
+import { routes as userRoutes } from './controllers';
 
-const serve = express();
+export const server = fastify();
 
-serve.get("/", (req, res) => {
-    res.send("Olá")
-})
+server.register(userRoutes, { prefix: 'user' });
+// userRoutes(server);
 
-serve.listen(3333, () => console.log("Servidor rodando na porta 3333"))
+server.listen({port: 3333 }, () => console.log("Servidor rodando na porta 3333"))
