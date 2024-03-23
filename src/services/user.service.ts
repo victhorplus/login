@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { IUserRequest } from "../interfaces";
-import { Hash, createHash } from "node:crypto";
+import { hash, compare } from "bcryptjs";
 
 export class UserService {
     client: PrismaClient;
@@ -9,7 +9,7 @@ export class UserService {
         this.client = new PrismaClient();
     }
 
-    async create({ name, username, password }: IUserRequest) {
+    async create({ name, username, password }: IUserRequest): Promise<IUserRequest> {
         const userAlreadyExist = await this.client.user.findFirst({
             where: {
                 username
@@ -20,15 +20,32 @@ export class UserService {
             throw new Error("User already exists!");
         }
 
-        const passwordHash: Hash = createHash('sha256').update(password);
         const user = await this.client.user.create({
             data: {
                 name,
                 username,
-                password: '' + passwordHash,
+                password: await hash(password, 8),
+            }
+        });
+        delete user.password;
+
+        return user;
+    }
+
+    async authenticateUser({username, password}: IUserRequest): Promise<IUserRequest> {
+        const userMatch = await this.client.user.findFirst({
+            where: {
+                username
             }
         });
 
-        return user;
+        if(!userMatch){
+            throw new Error("Username not found")
+        }
+
+        if(compare(password, userMatch.password)){
+            delete userMatch.password;
+            return userMatch;
+        }
     }
 }

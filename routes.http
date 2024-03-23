@@ -6,7 +6,19 @@ POST http://localhost:3333/user
 Content-Type: application/json
 
 {
-    "username": "victhorplus",
+    "username": "victhorplus3",
     "name": "Victhor",
     "password": "abc123"
 }
+
+###
+
+POST http://localhost:3333/user/auth
+Content-Type: application/json
+
+{
+    "username": "victhorplus3",
+    "password": "abc123"
+}
+
+###
