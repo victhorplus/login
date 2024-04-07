@@ -6,7 +6,7 @@ POST http://localhost:3333/user
 Content-Type: application/json
 
 {
-    "username": "victhorplus3",
+    "username": "victhorplus4",
     "name": "Victhor",
     "password": "abc123"
 }
@@ -17,8 +17,22 @@ POST http://localhost:3333/user/auth
 Content-Type: application/json
 
 {
-    "username": "victhorplus3",
+    "username": "victhorplus4",
     "password": "abc123"
 }
+
+###
+
+GET http://localhost:3333/user/users
+Content-Type: application/json
+
+{
+    "username": "victhorplus4",
+    "password": "abc123"
+}
+
+###
+
+DELETE http://localhost:3333/user/25ccc647-bce5-47a2-8f38-97407e753603
 
 ###

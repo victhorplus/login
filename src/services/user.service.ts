@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { IUserRequest } from "../interfaces";
 import { hash, compare } from "bcryptjs";
+import { sign } from "jsonwebtoken";
+import 'dotenv/config';
 
 export class UserService {
     client: PrismaClient;
@@ -9,43 +11,66 @@ export class UserService {
         this.client = new PrismaClient();
     }
 
+    async getUsers(): Promise<IUserRequest[]> {
+        return this.client.user.findMany();
+    }
+
     async create({ name, username, password }: IUserRequest): Promise<IUserRequest> {
-        const userAlreadyExist = await this.client.user.findFirst({
-            where: {
-                username
-            }
+        const userAlreadyExist$ = await this.client.user.findFirst({
+            where: { username }
         });
 
-        if(userAlreadyExist){
+        if(userAlreadyExist$){
             throw new Error("User already exists!");
         }
 
-        const user = await this.client.user.create({
+        const user$ = await this.client.user.create({
             data: {
                 name,
                 username,
                 password: await hash(password, 8),
             }
         });
-        delete user.password;
+        delete user$.password;
 
-        return user;
+        return user$;
     }
 
-    async authenticateUser({username, password}: IUserRequest): Promise<IUserRequest> {
-        const userMatch = await this.client.user.findFirst({
-            where: {
-                username
-            }
+    async authenticateUser({ username, password }: IUserRequest): Promise<{ token: string }> {
+        const userMatch$ = await this.client.user.findFirst({
+            where: { username }
         });
-
-        if(!userMatch){
+        
+        if(!userMatch$){
             throw new Error("Username not found")
         }
-
-        if(compare(password, userMatch.password)){
-            delete userMatch.password;
-            return userMatch;
+        
+        const passwordMatch = await compare(password, userMatch$.password);
+        if(passwordMatch){
+            const token = sign(
+                {},
+                process.env.TOKEN_SECRET,
+                {
+                    subject: userMatch$.id,
+                    expiresIn: "20s"
+                }
+            )
+            return { token };
         }
+
+        throw new Error("Incorrect password");
+    }
+
+    async deleteUser({ id }: IUserRequest): Promise<IUserRequest> {
+        const userMatch$ = await this.client.user.findFirst({where: { id }});
+        if(!userMatch$){
+            throw new Error("User not found");
+        }
+        
+        const deleteUser$ = await this.client.user.delete({
+            where: { id }
+        });
+        
+        return deleteUser$;
     }
 }
