@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { IUserRequest } from "../interfaces";
+import { IUserRequest } from "../../interfaces";
 import { hash, compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
 import 'dotenv/config';

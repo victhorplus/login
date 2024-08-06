@@ -3,11 +3,13 @@ import { verify } from 'jsonwebtoken';
 import 'dotenv/config';
 
 export function authenticateUser(request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction){
-    console.log("Middleware")
     const [ , token] = request.headers.authorization.split(" ");
-    console.log("Token:", token);
     try{
-        verify(token, process.env.TOKEN_SECRET);
+        const { sub } = verify(token, process.env.TOKEN_SECRET);
+        request.body = {
+            ...(request.body as object),
+            consumerId: sub
+        }
         done();
     }catch(err){
         reply.status(401).send({
