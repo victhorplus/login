@@ -13,7 +13,8 @@ export function authenticateUser(request: FastifyRequest, reply: FastifyReply, d
         done();
     }catch(err){
         reply.status(401).send({
-            error: "Invalid token"
+            error: "Invalid token",
+            message: err
         })
     }
     done();

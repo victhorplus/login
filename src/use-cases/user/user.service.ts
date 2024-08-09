@@ -21,7 +21,7 @@ export class UserService {
         });
 
         if(userAlreadyExist$){
-            throw new Error("User already exists!");
+            throw { statusCode: 401, message: "User already exists!" };
         }
 
         const user$ = await this.client.user.create({
@@ -42,7 +42,7 @@ export class UserService {
         });
         
         if(!userMatch$){
-            throw new Error("Username not found")
+            throw { statusCode: 401, message: "Username not found" }
         }
         
         const passwordMatch = await compare(password, userMatch$.password);
@@ -52,19 +52,19 @@ export class UserService {
                 process.env.TOKEN_SECRET,
                 {
                     subject: userMatch$.id,
-                    expiresIn: "20s"
+                    expiresIn: "200s"
                 }
             )
             return { token };
         }
 
-        throw new Error("Incorrect password");
+        throw { statusCode: 401, message: "Incorrect password"};
     }
 
     async deleteUser({ id }: IUserRequest): Promise<IUserRequest> {
         const userMatch$ = await this.client.user.findFirst({where: { id }});
         if(!userMatch$){
-            throw new Error("User not found");
+            throw { statusCode: 401, message: "User not found"};
         }
         
         const deleteUser$ = await this.client.user.delete({

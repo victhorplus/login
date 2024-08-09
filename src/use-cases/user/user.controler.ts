@@ -18,9 +18,6 @@ export async function UserController(server: FastifyInstance){
     server.post('/auth', async(request, reply) => {
         const result = await userService
             .authenticateUser(request.body as IUserRequest)
-            // .catch(error => {
-            //     return reply.status(401).send(error);
-            // });
         return reply.send(result)
     });
 
@@ -32,9 +29,6 @@ export async function UserController(server: FastifyInstance){
     server.delete('/:id', async (request, reply) => {
         userService
             .deleteUser(request.params as IUserRequest)
-            // .catch(error => {
-            //     return reply.status(401).send(error);
-            // });
         return reply.status(202).send();
     })
 }
